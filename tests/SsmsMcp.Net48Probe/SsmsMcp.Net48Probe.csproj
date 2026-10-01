@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SsmsMcp.Server\SsmsMcp.Server.csproj" />
+    <Content Include="..\..\src\SsmsMcp.Server\SsmsMcp.Server.config" Link="SsmsMcp.Server.config" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

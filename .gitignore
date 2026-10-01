@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+dist/
+.vs/
+TestResults/
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+.vscode/
+.codex/
+.env
+.env.*
+!.env.example

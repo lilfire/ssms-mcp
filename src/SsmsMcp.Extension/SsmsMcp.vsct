@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidSsmsMcpPackage">
+    <Groups>
+      <Group guid="guidSsmsMcpCommandSet" id="SsmsMcpGroup" priority="0x700">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" />
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidSsmsMcpCommandSet" id="SsmsMcpStatus" priority="0x0100" type="Button">
+        <Parent guid="guidSsmsMcpCommandSet" id="SsmsMcpGroup" />
+        <Strings>
+          <ButtonText>SSMS MCP Server status</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidSsmsMcpPackage" value="{91eac56b-7ef5-44d0-a7ea-2110ee3acd0e}" />
+    <GuidSymbol name="guidSsmsMcpCommandSet" value="{8824297e-336c-4fe9-912d-4e41abc607ee}">
+      <IDSymbol name="SsmsMcpGroup" value="0x1020" />
+      <IDSymbol name="SsmsMcpStatus" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

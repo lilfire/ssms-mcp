@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SsmsMcp.Server/SsmsMcp.Server.csproj" />
+    <Project Path="src/SsmsMcp.Contracts/SsmsMcp.Contracts.csproj" />
+    <Project Path="src/SsmsMcp.Core/SsmsMcp.Core.csproj" />
+    <Project Path="src/SsmsMcp.Extension/SsmsMcp.Extension.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SsmsMcp.Tests/SsmsMcp.Tests.csproj" />
+    <Project Path="tests/SsmsMcp.Net48Probe/SsmsMcp.Net48Probe.csproj" />
+  </Folder>
+</Solution>

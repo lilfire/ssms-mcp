@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="SsmsMcp.Server.2fe2109e-94b4-4ce2-bca0-cb77a81c995c" Version="0.2.0" Language="en-US" Publisher="Lsoft" />
+    <DisplayName>SSMS MCP Server</DisplayName>
+    <Description>Local MCP access to the active SSMS query window.</Description>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Ssms" Version="[22.0,23.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="[4.8,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[18.0,19.0)" DisplayName="SSMS core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="|SsmsMcp.Extension;PkgdefProjectOutputGroup|" />
+  </Assets>
+</PackageManifest>
