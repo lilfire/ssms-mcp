@@ -12,6 +12,17 @@ Krever Visual Studio 2026 med VSSDK, .NET 10 SDK og SSMS 22 på Windows. Prosjek
 ./scripts/Build.ps1
 ```
 
+### GitHub-release
+
+En tagg som samsvarer med versjonen i `src/SsmsMcp.Extension/source.extension.vsixmanifest`, for eksempel `v0.2.0`, starter en Windows-bygging på GitHub Actions. Flyten kjører testene og `scripts/Build.ps1`, og legger den ferdige `SsmsMcp.Extension.vsix` ved en GitHub-release. Oppdater manifestversjonen før du oppretter taggen for en ny versjon.
+
+```powershell
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+Last ned VSIX-pakken fra [Releases](https://github.com/lilfire/ssms-mcp/releases).
+
 Lagre arbeidet og lukk SSMS før installasjon. Kjør installasjonsskriptet for å installere VSIX-pakken og opprette en lokal tilgangsnøkkel:
 
 ```powershell

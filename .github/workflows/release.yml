@@ -1,0 +1,50 @@
+name: Publish VSIX
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-2025-vs2026
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Check release version
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
+            throw "Ugyldig release-tag: $tag"
+          }
+          [xml]$manifest = Get-Content src/SsmsMcp.Extension/source.extension.vsixmanifest
+          $version = $manifest.PackageManifest.Metadata.Identity.Version
+          if ($tag.Substring(1) -ne $version) {
+            throw "Taggen $tag stemmer ikke med VSIX-versjonen $version."
+          }
+
+      - name: Build and test VSIX
+        shell: pwsh
+        run: ./scripts/Build.ps1
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $vsix = 'dist/SsmsMcp.Extension.vsix'
+          if (-not (Test-Path -LiteralPath $vsix)) {
+            throw "VSIX-pakken ble ikke funnet: $vsix"
+          }
+          gh release create $env:GITHUB_REF_NAME $vsix --verify-tag --title "SSMS MCP Server $env:GITHUB_REF_NAME" --generate-notes
