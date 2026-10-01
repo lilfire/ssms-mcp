@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
   <Metadata>
-    <Identity Id="SsmsMcp.Server.2fe2109e-94b4-4ce2-bca0-cb77a81c995c" Version="0.2.0" Language="en-US" Publisher="Lsoft" />
+    <Identity Id="SsmsMcp.Server.2fe2109e-94b4-4ce2-bca0-cb77a81c995c" Version="0.2.1" Language="en-US" Publisher="Lsoft" />
     <DisplayName>SSMS MCP Server</DisplayName>
     <Description>Local MCP access to the active SSMS query window.</Description>
   </Metadata>

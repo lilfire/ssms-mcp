@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
@@ -26,6 +27,7 @@ public sealed class SsmsMcpPackage : AsyncPackage
     private string? _httpError;
     private ResolveEventHandler? _resolveBundledAssembly;
     private readonly Guid _commandSet = new("8824297e-336c-4fe9-912d-4e41abc607ee");
+    private readonly string _tokenEnvironmentVariable = "SSMS_MCP_TOKEN";
 
     public SsmsMcpPackage() => WriteStartupInfo("Pakkekonstruktør kalt.");
 
@@ -35,52 +37,62 @@ public sealed class SsmsMcpPackage : AsyncPackage
         await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
         WriteStartupInfo("Pakkeinitialisering startet.");
         _requestClient = new SsmsRequestClient(this);
-        string? token = Environment.GetEnvironmentVariable("SSMS_MCP_TOKEN", EnvironmentVariableTarget.User);
-        if (string.IsNullOrWhiteSpace(token))
-            _httpError = "HTTP-token mangler. Kjør scripts/Install.ps1.";
-        else
+        try
         {
-            try
+            string token = GetOrCreateToken();
+            string directory = Path.GetDirectoryName(typeof(SsmsMcpPackage).Assembly.Location)
+                ?? throw new InvalidOperationException("Utvidelsens installasjonsmappe ble ikke funnet.");
+            _resolveBundledAssembly = (_, args) =>
             {
-                string directory = Path.GetDirectoryName(typeof(SsmsMcpPackage).Assembly.Location)
-                    ?? throw new InvalidOperationException("Utvidelsens installasjonsmappe ble ikke funnet.");
-                _resolveBundledAssembly = (_, args) =>
-                {
-                    string? requester = args.RequestingAssembly?.Location;
-                    if (requester is { Length: > 0 } &&
-                        !requester.StartsWith(directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                        return null;
+                string? requester = args.RequestingAssembly?.Location;
+                if (requester is { Length: > 0 } &&
+                    !requester.StartsWith(directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    return null;
 
-                    string? name = new AssemblyName(args.Name).Name;
-                    if (string.IsNullOrEmpty(name) || name != Path.GetFileName(name))
-                        return null;
-                    string path = Path.Combine(directory, name + ".dll");
-                    return File.Exists(path) ? Assembly.LoadFrom(path) : null;
-                };
-                AppDomain.CurrentDomain.AssemblyResolve += _resolveBundledAssembly;
-                _httpHost = new SsmsHttpDomainHost();
-                WriteStartupInfo("HTTP-vert opprettet.");
-                _requestBridge = new SsmsRequestBridge(_requestClient.Send);
-                _endpoint = _httpHost.Start(_requestBridge, token);
-                WriteStartupInfo($"HTTP-server startet på {_endpoint}.");
-            }
-            catch (Exception error)
+                string? name = new AssemblyName(args.Name).Name;
+                if (string.IsNullOrEmpty(name) || name != Path.GetFileName(name))
+                    return null;
+                string path = Path.Combine(directory, name + ".dll");
+                return File.Exists(path) ? Assembly.LoadFrom(path) : null;
+            };
+            AppDomain.CurrentDomain.AssemblyResolve += _resolveBundledAssembly;
+            _httpHost = new SsmsHttpDomainHost();
+            WriteStartupInfo("HTTP-vert opprettet.");
+            _requestBridge = new SsmsRequestBridge(_requestClient.Send);
+            _endpoint = _httpHost.Start(_requestBridge, token);
+            WriteStartupInfo($"HTTP-server startet på {_endpoint}.");
+        }
+        catch (Exception error)
+        {
+            _httpError = error.ToString();
+            WriteStartupError(error);
+            try { _httpHost?.Stop(); }
+            catch (Exception stopError) { WriteStartupError(stopError); }
+            _httpHost = null;
+            if (_resolveBundledAssembly is not null)
             {
-                _httpError = error.ToString();
-                WriteStartupError(error);
-                try { _httpHost?.Stop(); }
-                catch (Exception stopError) { WriteStartupError(stopError); }
-                _httpHost = null;
-                if (_resolveBundledAssembly is not null)
-                {
-                    AppDomain.CurrentDomain.AssemblyResolve -= _resolveBundledAssembly;
-                    _resolveBundledAssembly = null;
-                }
+                AppDomain.CurrentDomain.AssemblyResolve -= _resolveBundledAssembly;
+                _resolveBundledAssembly = null;
             }
         }
         IMenuCommandService? commands = await GetServiceAsync(typeof(IMenuCommandService)) as IMenuCommandService;
         commands?.AddCommand(new MenuCommand(ShowStatus, new CommandID(_commandSet, 0x0100)));
         WriteStartupInfo(commands is null ? "Menytjenesten mangler." : "Statuskommando registrert.");
+    }
+
+    private string GetOrCreateToken()
+    {
+        string? token = Environment.GetEnvironmentVariable(_tokenEnvironmentVariable, EnvironmentVariableTarget.User);
+        if (!string.IsNullOrWhiteSpace(token))
+            return token;
+
+        byte[] bytes = new byte[32];
+        using (RandomNumberGenerator random = RandomNumberGenerator.Create())
+            random.GetBytes(bytes);
+
+        token = Convert.ToBase64String(bytes);
+        Environment.SetEnvironmentVariable(_tokenEnvironmentVariable, token, EnvironmentVariableTarget.User);
+        return token;
     }
 
     private static void WriteStartupInfo(string message)

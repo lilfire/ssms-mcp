@@ -14,22 +14,22 @@ Krever Visual Studio 2026 med VSSDK, .NET 10 SDK og SSMS 22 på Windows. Prosjek
 
 ### GitHub-release
 
-En tagg som samsvarer med versjonen i `src/SsmsMcp.Extension/source.extension.vsixmanifest`, for eksempel `v0.2.0`, starter en Windows-bygging på GitHub Actions. Flyten kjører testene og `scripts/Build.ps1`, og legger den ferdige `SsmsMcp.Extension.vsix` ved en GitHub-release. Oppdater manifestversjonen før du oppretter taggen for en ny versjon.
+En tagg som samsvarer med versjonen i `src/SsmsMcp.Extension/source.extension.vsixmanifest`, for eksempel `v0.2.1`, starter en Windows-bygging på GitHub Actions. Flyten kjører testene og `scripts/Build.ps1`, og legger den ferdige `SsmsMcp.Extension.vsix` ved en GitHub-release. Oppdater manifestversjonen før du oppretter taggen for en ny versjon.
 
 ```powershell
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
-Last ned VSIX-pakken fra [Releases](https://github.com/lilfire/ssms-mcp/releases).
+Last ned VSIX-pakken fra [Releases](https://github.com/lilfire/ssms-mcp/releases), lukk SSMS og installer den direkte på målmaskinen.
 
-Lagre arbeidet og lukk SSMS før installasjon. Kjør installasjonsskriptet for å installere VSIX-pakken og opprette en lokal tilgangsnøkkel:
+Hvis du bygger lokalt, kan du også lagre arbeidet, lukke SSMS og bruke installasjonsskriptet:
 
 ```powershell
 ./scripts/Install.ps1
 ```
 
-MCP-serveren og avhengighetene ligger i VSIX-pakken. Tilgangsnøkkelen lagres som brukermiljøvariabelen `SSMS_MCP_TOKEN`; del den ikke med andre.
+MCP-serveren og avhengighetene ligger i VSIX-pakken. Ved første oppstart oppretter utvidelsen en tilgangsnøkkel som brukermiljøvariabelen `SSMS_MCP_TOKEN`, også når VSIX-en installeres direkte uten `Install.ps1`. Les den på maskinen med `[Environment]::GetEnvironmentVariable('SSMS_MCP_TOKEN', 'User')` i PowerShell. Del den ikke med andre.
 Installasjonsskriptet avviser en VSIX-pakke som er eldre enn kildekoden; kjør `./scripts/Build.ps1` på nytt etter kodeendringer.
 
 Start SSMS på nytt. Under **Tools → SSMS MCP Server status** vises prosess-ID, sesjonsmodus og MCP-adressen. Første SSMS-prosess bruker normalt `http://127.0.0.1:51741/mcp`. Flere samtidige SSMS-prosesser bruker neste ledige port. Endre klientens URL hvis adressen i statusvinduet er en annen.
